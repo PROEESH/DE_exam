@@ -1,22 +1,33 @@
-# Tell Cloud Build to send logs to Cloud Logging only (no bucket needed)
+# Cloud Build config for building Docker image and deploying as Cloud Run Job
 options:
   logging: CLOUD_LOGGING_ONLY
+  default_logs_bucket_behavior: REGIONAL_USER_OWNED_BUCKET
 
 steps:
 # Step 1: Build Docker image from Dockerfile
 - name: 'gcr.io/cloud-builders/docker'
-  args: ['build', '-t', 'gcr.io/$PROJECT_ID/my-app', '.']
+  args: ['build', '-t', 'gcr.io/$PROJECT_ID/my-app:$SHORT_SHA', '.']
 
 # Step 2: Push Docker image to Google Container Registry
 - name: 'gcr.io/cloud-builders/docker'
-  args: ['push', 'gcr.io/$PROJECT_ID/my-app']
+  args: ['push', 'gcr.io/$PROJECT_ID/my-app:$SHORT_SHA']
 
-# Step 3: Deploy to Cloud Run
+# Step 3: Create or update Cloud Run Job
 - name: 'gcr.io/cloud-builders/gcloud'
   args:
     [
-      'run', 'deploy', 'my-app',
-      '--image', 'gcr.io/$PROJECT_ID/my-app',
-      '--region', 'us-central1',
-      '--platform', 'managed'
+      'run', 'jobs', 'replace', 'my-batch-job',
+      '--image', 'gcr.io/$PROJECT_ID/my-app:$SHORT_SHA',
+      '--region', 'us-central1'
     ]
+
+# Step 4 (optional): Execute the job immediately
+- name: 'gcr.io/cloud-builders/gcloud'
+  args:
+    [
+      'run', 'jobs', 'execute', 'my-batch-job',
+      '--region', 'us-central1'
+    ]
+
+substitutions:
+  SHORT_SHA: $SHORT_SHA
