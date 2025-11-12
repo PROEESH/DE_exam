@@ -12,14 +12,23 @@ steps:
 - name: 'gcr.io/cloud-builders/docker'
   args: ['push', 'gcr.io/$PROJECT_ID/my-app:$SHORT_SHA']
 
-# Step 3: Create or update Cloud Run Job
+# Step 3: Create the Cloud Run Job if it doesn't exist
 - name: 'gcr.io/cloud-builders/gcloud'
+  entrypoint: 'bash'
   args:
-    [
-      'run', 'jobs', 'replace', 'my-batch-job',
-      '--image', 'gcr.io/$PROJECT_ID/my-app:$SHORT_SHA',
-      '--region', 'us-central1'
-    ]
+    - '-c'
+    - |
+      if ! gcloud run jobs describe my-batch-job --region=us-central1 &> /dev/null; then
+        echo "Job does not exist. Creating..."
+        gcloud run jobs create my-batch-job \
+          --image gcr.io/$PROJECT_ID/my-app:$SHORT_SHA \
+          --region us-central1
+      else
+        echo "Job exists. Updating image..."
+        gcloud run jobs update my-batch-job \
+          --image gcr.io/$PROJECT_ID/my-app:$SHORT_SHA \
+          --region us-central1
+      fi
 
 # Step 4 (optional): Execute the job immediately
 - name: 'gcr.io/cloud-builders/gcloud'
@@ -28,5 +37,3 @@ steps:
       'run', 'jobs', 'execute', 'my-batch-job',
       '--region', 'us-central1'
     ]
-
-
