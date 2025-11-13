@@ -1,1 +1,6 @@
-pandas
+apache-beam[gcp]==2.46.0
+google-cloud-storage
+python-dotenv
+pyarrow
+fastparquet
+requests
