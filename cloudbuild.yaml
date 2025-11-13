@@ -20,9 +20,9 @@ steps:
         --image-gcr-path=gcr.io/$PROJECT_ID/beam-pipelines:latest \
         --sdk-language=PYTHON \
         --metadata-file=templates_metadata/template_api1.json \
-        --py-path=src/Pipelines/ingest_api1.py \
         --staging-location=gs://$PROJECT_ID-templates/staging \
-        --temp-location=gs://$PROJECT_ID-templates/temp \
+        --temp-location=gs://$PROJECT_ID-templates/temp
+
 
 # 4️⃣ Build Flex Template for ingest_api2.py
 - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk:latest'
@@ -34,9 +34,9 @@ steps:
         --image-gcr-path=gcr.io/$PROJECT_ID/beam-pipelines:latest \
         --sdk-language=PYTHON \
         --metadata-file=templates_metadata/template_api2.json \
-        --py-path=src/Pipelines/ingest_api2.py \
         --staging-location=gs://$PROJECT_ID-templates/staging \
-        --temp-location=gs://$PROJECT_ID-templates/temp \
+        --temp-location=gs://$PROJECT_ID-templates/temp
+
 
 images:
 - 'gcr.io/$PROJECT_ID/beam-pipelines:latest'
