@@ -1,27 +1,5 @@
-# steps:
-# # 1️⃣ Build Docker image
-# - name: 'gcr.io/cloud-builders/docker'
-#   args: ['build', '-t', 'gcr.io/$PROJECT_ID/api-dataflow:$SHORT_SHA', '.']
-
-# # 2️⃣ Push Docker image
-# - name: 'gcr.io/cloud-builders/docker'
-#   args: ['push', 'gcr.io/$PROJECT_ID/api-dataflow:$SHORT_SHA']
-
-# # 3️⃣ Deploy Dataflow job using Flex Template
-# - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk:slim'
-#   entrypoint: 'bash'
-#   args:
-#     - '-c'
-#     - |
-#       gcloud dataflow flex-template run api-ingestion-job-$SHORT_SHA \
-#         --template-file-gcs-location gs://$BUCKET/templates/api-dataflow.json \
-#         --region=us-central1 \
-#         --parameters image=gcr.io/$PROJECT_ID/api-dataflow:$SHORT_SHA
-
-
-
 steps:
-# 1. Build and push the Docker image
+# 1. Build and push Docker image
 - name: 'gcr.io/cloud-builders/docker'
   args: ['build', '-t', 'gcr.io/$PROJECT_ID/beam-pipelines:latest', '.']
 
@@ -54,9 +32,7 @@ steps:
         --env FLEX_TEMPLATE_PYTHON_PY_FILE=src/Pipelines/ingest_api2.py \
         --quiet
 
-images:
-- 'gcr.io/$PROJECT_ID/beam-pipelines:latest'
-
+# 4. Run ingest_api1 job on Dataflow
 - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
   entrypoint: 'bash'
   args:
@@ -66,3 +42,6 @@ images:
         --template-file-gcs-location gs://$PROJECT_ID-templates/ingest_api1.json \
         --region=us-central1 \
         --parameters output_bucket=gs://$PROJECT_ID-data/output,bq_table=project.dataset.table
+
+images:
+- 'gcr.io/$PROJECT_ID/beam-pipelines:latest'
