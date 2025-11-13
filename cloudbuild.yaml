@@ -11,28 +11,34 @@ steps:
   args: ['push', 'gcr.io/$PROJECT_ID/beam-pipelines:latest']
 
 # 3️⃣ Build Flex Template for ingest_api1.py
-- name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
+- name: 'gcr.io/google.com/cloudsdktool/cloud-sdk:latest'
   entrypoint: 'bash'
   args:
     - '-c'
     - |
       gcloud dataflow flex-template build gs://$PROJECT_ID-templates/ingest_api1.json \
-        --image gcr.io/$PROJECT_ID/beam-pipelines:latest \
-        --sdk-language PYTHON \
-        --metadata-file templates_metadata/template_api1.json \
-        --env FLEX_TEMPLATE_PYTHON_PY_FILE=src/Pipelines/ingest_api1.py
+        --image-gcr-path=gcr.io/$PROJECT_ID/beam-pipelines:latest \
+        --sdk-language=PYTHON \
+        --metadata-file=templates_metadata/template_api1.json \
+        --py-path=src/Pipelines/ingest_api1.py \
+        --staging-location=gs://$PROJECT_ID-templates/staging \
+        --temp-location=gs://$PROJECT_ID-templates/temp \
+        --region=us-central1
 
 # 4️⃣ Build Flex Template for ingest_api2.py
-- name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
+- name: 'gcr.io/google.com/cloudsdktool/cloud-sdk:latest'
   entrypoint: 'bash'
   args:
     - '-c'
     - |
       gcloud dataflow flex-template build gs://$PROJECT_ID-templates/ingest_api2.json \
-        --image gcr.io/$PROJECT_ID/beam-pipelines:latest \
-        --sdk-language PYTHON \
-        --metadata-file templates_metadata/template_api2.json \
-        --env FLEX_TEMPLATE_PYTHON_PY_FILE=src/Pipelines/ingest_api2.py
+        --image-gcr-path=gcr.io/$PROJECT_ID/beam-pipelines:latest \
+        --sdk-language=PYTHON \
+        --metadata-file=templates_metadata/template_api2.json \
+        --py-path=src/Pipelines/ingest_api2.py \
+        --staging-location=gs://$PROJECT_ID-templates/staging \
+        --temp-location=gs://$PROJECT_ID-templates/temp \
+        --region=us-central1
 
 images:
 - 'gcr.io/$PROJECT_ID/beam-pipelines:latest'
