@@ -50,10 +50,10 @@ steps:
     - '-c'
     - |
       # Upload DAG Python files
-      gsutil cp dags/*.py gs://$COMPOSER_BUCKET/dags/
+      gsutil cp dags/*.py gs://$_COMPOSER_BUCKET/dags/
       
       # Upload SQL folder
-      gsutil -m cp -r sql gs://$COMPOSER_BUCKET/dags/
+      gsutil -m cp -r sql gs://$_COMPOSER_BUCKET/dags/
 
 images:
 - 'gcr.io/$PROJECT_ID/beam-pipelines:latest'
