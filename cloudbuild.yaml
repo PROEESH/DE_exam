@@ -42,5 +42,18 @@ steps:
         --staging-location=gs://$PROJECT_ID-templates/staging \
         --temp-location=gs://$PROJECT_ID-templates/temp
 
+
+# 5️⃣ Upload DAGs and SQL to Cloud Composer DAGs bucket
+- name: 'gcr.io/google.com/cloudsdktool/cloud-sdk:latest'
+  entrypoint: 'bash'
+  args:
+    - '-c'
+    - |
+      # Upload DAG Python files
+      gsutil cp dags/*.py gs://$COMPOSER_BUCKET/dags/
+      
+      # Upload SQL folder
+      gsutil -m cp -r sql gs://$COMPOSER_BUCKET/dags/
+
 images:
 - 'gcr.io/$PROJECT_ID/beam-pipelines:latest'
