@@ -16,13 +16,13 @@ steps:
   args:
     - '-c'
     - |
-      gcloud dataflow flex-template build gs://$PROJECT_ID-templates/ingest_api1.json \
+      gcloud dataflow flex-template build gs://$PROJECT_ID-templates/ingest-api1.json \
         --image-gcr-path=gcr.io/$PROJECT_ID/beam-pipelines:latest \
         --sdk-language=PYTHON \
         --metadata-file=templates_metadata/template_api1.json \
-        --py-path=src/Pipelines/ingest_api1.py \
+        --py-path=src/Pipelines/ingest-api1.py \
         --flex-template-base-image=PYTHON3 \
-        --env FLEX_TEMPLATE_PYTHON_PY_FILE=src/Pipelines/ingest_api1.py \
+        --env FLEX_TEMPLATE_PYTHON_PY_FILE=src/Pipelines/ingest-api1.py \
         --staging-location=gs://$PROJECT_ID-templates/staging \
         --temp-location=gs://$PROJECT_ID-templates/temp
 
@@ -32,13 +32,13 @@ steps:
   args:
     - '-c'
     - |
-      gcloud dataflow flex-template build gs://$PROJECT_ID-templates/ingest_api2.json \
+      gcloud dataflow flex-template build gs://$PROJECT_ID-templates/ingest-api2.json \
         --image-gcr-path=gcr.io/$PROJECT_ID/beam-pipelines:latest \
         --sdk-language=PYTHON \
         --metadata-file=templates_metadata/template_api2.json \
-        --py-path=src/Pipelines/ingest_api2.py \
+        --py-path=src/Pipelines/ingest-api2.py \
         --flex-template-base-image=PYTHON3 \
-        --env FLEX_TEMPLATE_PYTHON_PY_FILE=src/Pipelines/ingest_api2.py \
+        --env FLEX_TEMPLATE_PYTHON_PY_FILE=src/Pipelines/ingest-api2.py \
         --staging-location=gs://$PROJECT_ID-templates/staging \
         --temp-location=gs://$PROJECT_ID-templates/temp
 
