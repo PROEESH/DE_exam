@@ -1,0 +1,5 @@
+{
+  "name": "ingest_api1",
+  "description": "Dataflow Flex Template for API 1 ingestion",
+  "parameters": []
+}
