@@ -1,15 +1,16 @@
 options:
   logging: CLOUD_LOGGING_ONLY
-  
+
 steps:
-# 1. Build and push Docker image
+# 1️⃣ Build Docker image
 - name: 'gcr.io/cloud-builders/docker'
   args: ['build', '-t', 'gcr.io/$PROJECT_ID/beam-pipelines:latest', '.']
 
+# 2️⃣ Push Docker image
 - name: 'gcr.io/cloud-builders/docker'
   args: ['push', 'gcr.io/$PROJECT_ID/beam-pipelines:latest']
 
-# 2. Build Flex Template for ingest_api1.py
+# 3️⃣ Build Flex Template for ingest_api1.py
 - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
   entrypoint: 'bash'
   args:
@@ -19,10 +20,9 @@ steps:
         --image gcr.io/$PROJECT_ID/beam-pipelines:latest \
         --sdk-language PYTHON \
         --metadata-file templates_metadata/template_api1.json \
-        --env FLEX_TEMPLATE_PYTHON_PY_FILE=src/Pipelines/ingest_api1.py \
-        --quiet
+        --env FLEX_TEMPLATE_PYTHON_PY_FILE=src/Pipelines/ingest_api1.py
 
-# 3. Build Flex Template for ingest_api2.py
+# 4️⃣ Build Flex Template for ingest_api2.py
 - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
   entrypoint: 'bash'
   args:
@@ -32,19 +32,7 @@ steps:
         --image gcr.io/$PROJECT_ID/beam-pipelines:latest \
         --sdk-language PYTHON \
         --metadata-file templates_metadata/template_api2.json \
-        --env FLEX_TEMPLATE_PYTHON_PY_FILE=src/Pipelines/ingest_api2.py \
-        --quiet
-
-# 4. Run ingest_api1 job on Dataflow
-- name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
-  entrypoint: 'bash'
-  args:
-    - '-c'
-    - |
-      gcloud dataflow flex-template run ingest-api1-job \
-        --template-file-gcs-location gs://$PROJECT_ID-templates/ingest_api1.json \
-        --region=us-central1 \
-        --parameters output_bucket=gs://$PROJECT_ID-data/output,bq_table=project.dataset.table
+        --env FLEX_TEMPLATE_PYTHON_PY_FILE=src/Pipelines/ingest_api2.py
 
 images:
 - 'gcr.io/$PROJECT_ID/beam-pipelines:latest'
