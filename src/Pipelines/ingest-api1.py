@@ -55,8 +55,8 @@ class FetchLeagueStandings(beam.DoFn):
 
 def run():
     options = PipelineOptions(
-        runner="DirectRunner",  # Or "DataflowRunner" if running on GCP
-        temp_location="gs://sport__bucket",  # Required for Dataflow
+        runner="DataflowRunner",  # Or "DataflowRunner" if running on GCP
+        temp_location="gs://sport__bucket/temp",  # Required for Dataflow
         project="voltaic-tooling-471807-t5"  # Your GCP project ID
     )
     # Generate timestamp for filename
@@ -68,7 +68,6 @@ def run():
             | "Start" >> beam.Create([None])
             | "Fetch League ID" >> beam.ParDo(FetchLeagueID())
             | "Fetch Standings" >> beam.ParDo(FetchLeagueStandings())
-
             |"Write to Parquet" >> beam.io.parquetio.WriteToParquet(
                 f"gs://sport__bucket/standings/API1/premier_league_{timestamp}",
                 schema=parquet_schema,

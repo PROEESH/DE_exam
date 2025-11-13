@@ -95,9 +95,10 @@ class FetchLeagueStandings(beam.DoFn):
 
 def run():
     options = PipelineOptions(
-        runner="DirectRunner",  # Or "DataflowRunner" if running on GCP
-        temp_location="gs://sport__bucket",  # Required for Dataflow
-        project="voltaic-tooling-471807-t5"  # Your GCP project ID
+        runner="DataflowRunner",  # Or "DataflowRunner" if running on GCP
+        temp_location="gs://sport__bucket/temp",  # Required for Dataflow
+        project="voltaic-tooling-471807-t5",  # Your GCP project ID
+        region="us-central1"
     )
     # Generate timestamp for filename
     timestamp = datetime.now().strftime("%Y%m%d-%H%M%S")
