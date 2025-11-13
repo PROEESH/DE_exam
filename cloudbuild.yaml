@@ -23,7 +23,6 @@ steps:
         --py-path=src/Pipelines/ingest_api1.py \
         --staging-location=gs://$PROJECT_ID-templates/staging \
         --temp-location=gs://$PROJECT_ID-templates/temp \
-        --region=us-central1
 
 # 4️⃣ Build Flex Template for ingest_api2.py
 - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk:latest'
@@ -38,7 +37,6 @@ steps:
         --py-path=src/Pipelines/ingest_api2.py \
         --staging-location=gs://$PROJECT_ID-templates/staging \
         --temp-location=gs://$PROJECT_ID-templates/temp \
-        --region=us-central1
 
 images:
 - 'gcr.io/$PROJECT_ID/beam-pipelines:latest'
