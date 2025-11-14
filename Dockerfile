@@ -16,5 +16,6 @@ RUN pip install --upgrade pip && pip install -r requirements.txt
 # Copy your pipeline code
 COPY src/Pipelines /app/src/Pipelines
 
+
 # Default entrypoint (Dataflow overrides it when running Flex Template)
 ENTRYPOINT ["sleep", "infinity"]
