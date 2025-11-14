@@ -14,7 +14,9 @@ Lightweight Data Engineering sample project — ingest football data from two ex
  - What should i add with more time:
   1. Full DDL with specific fields names 
   2. Better queries - improve the selection columns from api (ingest all to object storage for backup)
-  3. Better handle with the data - now its rewrite, handle the new data as temp and merge the data
+  3. Better handle with the data - now its rewrite, handle the new data as temp and merge 
+  the data
+  4. Define the CICD according to the change in repo. not run all steps every push to main
 ---
 
 ## Architecture Overview
