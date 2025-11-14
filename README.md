@@ -76,7 +76,7 @@ requirements.txt → Python dependencies
 Local Development
 Create .env in repo root:
 
-env
+env 
 Copy code
 API_KEY_1=<your_api_key_1>
 API_KEY_2=<your_api_key_2>
