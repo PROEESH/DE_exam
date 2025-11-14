@@ -21,7 +21,7 @@ default_args = {
 # ------------- Variables -------------
 COMPOSER_BUCKET = "us-central1-airflow-de-exam-1de749f2-bucket"
 PROJECT_ID = "voltaic-tooling-471807-t5"
-REGION = "us-central1"
+REGION = "US"
 
 DATAFLOW_TEMPLATE_1 = f"gs://{PROJECT_ID}-templates/ingest-api1.json"
 DATAFLOW_TEMPLATE_2 = f"gs://{PROJECT_ID}-templates/ingest-api2.json"
