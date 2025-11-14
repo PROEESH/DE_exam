@@ -1,6 +1,6 @@
 from airflow import DAG
 from airflow.utils.dates import days_ago
-from airflow.providers.google.cloud.operators.dataflow import DataflowTemplatedJobStartOperator
+from airflow.providers.google.cloud.operators.dataflow import DataflowStartFlexTemplateOperator
 from airflow.providers.google.cloud.operators.bigquery import BigQueryInsertJobOperator
 from google.cloud import storage
 
@@ -19,7 +19,7 @@ default_args = {
 }
 
 # ------------- Variables -------------
-COMPOSER_BUCKET = "us-central1-airflow-de-exam-1de749f2-bucket"  # replace with your Composer bucket
+COMPOSER_BUCKET = "us-central1-airflow-de-exam-1de749f2-bucket"
 PROJECT_ID = "voltaic-tooling-471807-t5"
 REGION = "us-central1"
 
@@ -37,22 +37,40 @@ with DAG(
     catchup=False,
 ) as dag:
 
-    # Step 1: Run ingest_api1 Dataflow template
-    ingest_api1 = DataflowTemplatedJobStartOperator(
+    # Step 1: Run ingest_api1 Flex Template
+    ingest_api1 = DataflowStartFlexTemplateOperator(
         task_id='ingest_api1',
-        template=DATAFLOW_TEMPLATE_1,
+        body={
+            "launchParameter": {
+                "jobName": "ingest-api1-{{ ds_nodash }}",
+                "containerSpecGcsPath": DATAFLOW_TEMPLATE_1,
+                "environment": {
+                    "tempLocation": f"gs://{PROJECT_ID}-templates/temp",
+                    "zone": "us-central1-f"
+                },
+                "parameters": {}
+            }
+        },
         location=REGION,
-        project_id=PROJECT_ID,
-        parameters={},
+        project_id=PROJECT_ID
     )
 
-    # Step 2: Run ingest_api2 Dataflow template
-    ingest_api2 = DataflowTemplatedJobStartOperator(
+    # Step 2: Run ingest_api2 Flex Template
+    ingest_api2 = DataflowStartFlexTemplateOperator(
         task_id='ingest_api2',
-        template=DATAFLOW_TEMPLATE_2,
+        body={
+            "launchParameter": {
+                "jobName": "ingest-api2-{{ ds_nodash }}",
+                "containerSpecGcsPath": DATAFLOW_TEMPLATE_2,
+                "environment": {
+                    "tempLocation": f"gs://{PROJECT_ID}-templates/temp",
+                    "zone": "us-central1-f"
+                },
+                "parameters": {}
+            }
+        },
         location=REGION,
-        project_id=PROJECT_ID,
-        parameters={},
+        project_id=PROJECT_ID
     )
 
     # Step 3: Run BigQuery Silver SQL

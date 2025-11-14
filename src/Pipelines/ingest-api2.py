@@ -41,17 +41,22 @@ bq_schema = {
     ]
 }
 
+standing_parquet_schema = pa.schema([
+    ('league_id', pa.string()),
+    ('team_id', pa.string()),
+    ('overall_league_position', pa.string()),
+])
+
 
 standings_bq_schema = {
     "fields": [
         {"name": "league_id", "type": "STRING"},
         {"name": "team_id", "type": "STRING"},
-        {"name": "team_name", "type": "STRING"},
-        {"name": "rank", "type": "INTEGER"},
-        {"name": "points", "type": "INTEGER"},
-        {"name": "goals_diff", "type": "INTEGER"}
+        {"name": "overall_league_position", "type": "STRING"},
     ]
 }
+
+
 
 # Load API key
 load_dotenv()
@@ -65,7 +70,7 @@ class FetchTeamsInLeague(beam.DoFn): # possible to add FetchLeagueID and then ta
         conn.request("GET", f"/?action=get_teams&league_id=152&APIkey={API_KEY_2}", headers=headers)
         res = conn.getresponse()
         data = json.loads(res.read())
-        print(data)
+        # print(data)
         for team in data:
             if team is None:
                 continue
@@ -80,49 +85,46 @@ class FlattenTeamData(beam.DoFn):
             "team_name": str(team.get("team_name", "")),
             "team_country": str(team.get("team_country", "")),
             "team_founded": str(team.get("team_founded", ""))
-            # "team_badge": str(team.get("team_badge", "")),
-            # "venue_name": str(team.get("venue_name", "")),
-            # "venue_address": str(team.get("venue_address", "")),
-            # "venue_city": str(team.get("venue_city", "")),
-            # "venue_capacity": str(team.get("venue_capacity", "")),
-            # "venue_surface": str(team.get("venue_surface", "")),
-            #"players": json.dumps(players)  # store list as JSON string
         }
 
 class FetchLeagueStandings(beam.DoFn):
     def process(self, league_id):
-        conn = http.client.HTTPSConnection("v3.football.api-sports.io")
-        headers = {"x-apisports-key": API_KEY_1}
+        conn = http.client.HTTPSConnection("apiv3.apifootball.com")
+        headers = {"x-apisports-key": API_KEY_2}
 
         conn.request(
             "GET",
-            f"/standings?league={league_id}&season=2022",
+            f"/?action=get_standings&league_id={league_id}&APIkey={API_KEY_2}",
             headers=headers
         )
-
+        
         res = conn.getresponse()
         data = json.loads(res.read())
-
-        yield data  # Pass raw object to flattening step
+        # print(data)
+        for standing in data:
+            if standing is None:
+                continue
+            yield standing
 
 
 class FlattenStandingsData(beam.DoFn):
-    def process(self, data):
-        try:
-            standings_list = data["response"][0]["league"]["standings"][0]
-        except Exception:
-            print("❌ INVALID STANDINGS FORMAT:", data)
-            return
+    def process(self, team_data):
+        """
+        team_data: dict representing a single team's standings info
+        """
+        # Validate the expected keys exist
+        if not isinstance(team_data, dict):
+            return  # skip invalid elements
 
-        for row in standings_list:
+        try:
             yield {
-                "league_id": "152",
-                "team_id": str(row["team"]["id"]),
-                "team_name": row["team"]["name"],
-                "rank": row["rank"],
-                "points": row["points"],
-                "goals_diff": row["goalsDiff"]
+                "league_id": str(team_data.get("league_id", "")),
+                "team_id": str(team_data.get("team_id", "")),
+                "overall_league_position": str(team_data.get("overall_league_position", ""))
             }
+        except KeyError as e:
+            # log missing key but continue
+            print(f"❌ MISSING KEY {e} in team data: {team_data}")
 
 
 
@@ -157,18 +159,18 @@ def run():
         )
 
         # Write to Parquet
-        teams | "Write to Parquet" >> beam.io.parquetio.WriteToParquet(
+        teams | "Write Teams to Parquet" >> beam.io.parquetio.WriteToParquet(
             f"gs://sport__bucket/teams/API2/premier_league_{timestamp}",
             schema=parquet_schema,
             file_name_suffix=".parquet"
         )
 
         # Write to BigQuery
-        teams | "Write to BigQuery" >> WriteToBigQuery(
+        teams | "Write Teams to BigQuery" >> WriteToBigQuery(
             table="voltaic-tooling-471807-t5.teams.teams_API2",
             project="voltaic-tooling-471807-t5",
             schema=bq_schema,
-            write_disposition=beam.io.BigQueryDisposition.WRITE_APPEND,
+            write_disposition=beam.io.BigQueryDisposition.WRITE_TRUNCATE,
             create_disposition=beam.io.BigQueryDisposition.CREATE_IF_NEEDED
         )
 
@@ -182,17 +184,17 @@ def run():
 
 
         # Write to Parquet
-        standings | "Write to Parquet" >> beam.io.parquetio.WriteToParquet(
+        standings | "Write Standings to Parquet" >> beam.io.parquetio.WriteToParquet(
             f"gs://sport__bucket/standings/API2/premier_league_{timestamp}",
             schema=parquet_schema,
             file_name_suffix=".parquet"
         )
 
         #write to BigQuery
-        standings | "Standings → BigQuery" >> WriteToBigQuery(
+        standings | "Write Standings to BigQuery" >> WriteToBigQuery(
             table="voltaic-tooling-471807-t5.teams.standings_API2",
             schema=standings_bq_schema,
-            write_disposition="WRITE_APPEND",
+            write_disposition="WRITE_TRUNCATE",
             create_disposition="CREATE_IF_NEEDED"
         )
 
