@@ -1,230 +1,252 @@
-// ...existing code...
 # DE_exam
 
-Lightweight Data engineering sample project — ingest football data from two external APIs, transform, persist as Parquet and load to BigQuery. Includes Beam pipelines, Airflow DAG, SQL models and deployment artifacts for local testing or running on GCP Dataflow.
+Lightweight Data Engineering sample project — ingest football data from two external APIs, transform, persist as Parquet, and load to BigQuery. Includes Apache Beam pipelines, Airflow DAG, SQL models, and deployment artifacts for local testing or running on GCP Dataflow.
+
+---
 
 ## Architecture Overview
 
 ![Pipeline Architecture](docs/architecture.png)
 
-## Contents
-- .env — environment variables (not committed)
-- Dockerfile, cloudbuild.yaml — container and Cloud Build config
-- requirements.txt — Python dependencies
-- dags/
-  - football.py — Airflow DAG(s)
-- src/
-  - Pipelines/
-    - ingest-api1.py — pipeline for API 1
-    - ingest-api2.py — pipeline for API 2 (teams & standings)
-  - bq_models/
-    - my_model.sql — example BigQuery model
-  - templates_metadata/ — JSON templates used by ingestion scripts
-- sql/
-  - silver.sql, gold.sql — transformation queries for silver/gold layers
+This diagram shows the flow of data from the APIs through Dataflow Flex Templates, stored in GCS, and then transformed into Silver and Gold tables in BigQuery. Airflow orchestrates scheduling.
 
-## Project goals
-- Ingest team and standings data from external football APIs
-- Normalize and write data as Parquet (GCS/local)
-- Append data to BigQuery tables
-- Be runnable locally (DirectRunner) and on GCP Dataflow (DataflowRunner)
-- Provide CI/CD and containerization examples
+---
+
+## Contents
+
+- `.env` — environment variables (not committed)
+- `Dockerfile`, `cloudbuild.yaml` — container and Cloud Build config
+- `requirements.txt` — Python dependencies
+- `dags/` — Airflow DAGs
+  - `football.py` — DAG orchestrating pipelines and SQL models
+- `src/`  
+  - `Pipelines/` — Beam pipelines for data ingestion  
+    - `ingest-api1.py` — pipeline for API 1  
+    - `ingest-api2.py` — pipeline for API 2 (teams & standings)  
+  - `bq_models/` — SQL models  
+  - `templates_metadata/` — JSON metadata for Flex Templates
+- `sql/` — transformation queries for silver/gold layers
+
+---
+
+## Project Goals
+
+- Ingest teams and standings from external football APIs  
+- Normalize and write data as Parquet (GCS/local)  
+- Append data to BigQuery tables  
+- Run pipelines locally (DirectRunner) or on GCP Dataflow (DataflowRunner)  
+- Provide CI/CD and containerization examples via Cloud Build
+
+---
 
 ## Prerequisites
-- Python 3.8+ (match versions in requirements.txt)
-- pip
-- Recommended for Windows: WSL2 or Linux container for pyarrow / Beam native wheels if you hit build issues
-- (GCP) gcloud SDK, project with billing enabled
-- (GCP) Enabled APIs: Dataflow, Compute Engine, BigQuery, Cloud Storage
 
+- Python 3.8+ (match `requirements.txt`)  
+- `pip`  
+- (Linux/WSL recommended for pyarrow/Beam builds on Windows)  
+- GCP project with billing enabled  
+- Enabled APIs: Dataflow, Compute Engine, BigQuery, Cloud Storage  
 
+---
 
-🏗 Project Setup & Instructions
-1️⃣ Clone the Repository
+## Setup & Instructions
+
+### 1️⃣ Clone the Repository
+
+```bash
 git clone https://github.com/PROEESH/DE_exam.git
 cd DE_exam
-
-
-Make sure the repository contains:
+Verify the repo structure:
 
 cloudbuild.yaml → Cloud Build pipeline
 
 src/Pipelines/ → Dataflow Python scripts
 
-templates_metadata/ → metadata for Flex Templates
+templates_metadata/ → Flex Template metadata
 
 dags/ → Airflow DAGs
 
-sql/ → SQL files for BigQuery (silver/gold tables)
+sql/ → BigQuery SQL models
 
 requirements.txt → Python dependencies
 
-.env (optional for local testing API keys)
+.env (optional for local API keys)
 
 2️⃣ Set Environment Variables
 Local Development
-
 Create .env in repo root:
 
+env
+Copy code
 API_KEY_1=<your_api_key_1>
 API_KEY_2=<your_api_key_2>
 PROJECT_ID=<your_gcp_project_id>
-
-
-.env allows pipelines to run locally without hardcoding secrets.
-
-Use python-dotenv to load these in your scripts.
+Load via python-dotenv in scripts.
 
 Cloud / Production
+Use Google Secret Manager:
 
-Use Google Secret Manager for API keys.
-
-Example:
-
+bash
+Copy code
 gcloud secrets create API_KEY_1 --data-file=<(echo "your_key_1")
 gcloud secrets create API_KEY_2 --data-file=<(echo "your_key_2")
-
-
 Grant Cloud Build service account access to read secrets.
 
+powershell
+# 1️⃣ Write your key to a temporary file
+echo your_key_1 > api_key_1.txt
+echo your_key_2 > api_key_2.txt
+
+# 2️⃣ Create secrets from the files
+gcloud secrets create API_KEY_1 --data-file=api_key_1.txt
+gcloud secrets create API_KEY_2 --data-file=api_key_2.txt
+
 3️⃣ Buckets Setup
-
-Create required buckets:
-
-# For Dataflow staging/templates
+bash
+Copy code
+# Templates / staging / temp
 gsutil mb -l us-central1 gs://$PROJECT_ID-templates
 gsutil mkdir gs://$PROJECT_ID-templates/staging
 gsutil mkdir gs://$PROJECT_ID-templates/temp
 
-# For raw Parquet output
+# Raw Parquet output
 gsutil mb -l us-central1 gs://sport__bucket
-
 4️⃣ Composer (Airflow) Setup
-# I did it drom the UI, 
-# its possible to do it with the gcloud CLI
-Create Composer environment (if not already):
+Create Composer environment:
 
+bash
+Copy code
 gcloud composer environments create my-composer \
     --location=us-central1 \
     --zone=us-central1-a \
     --machine-type=n1-standard-1 \
     --python-version=3 \
     --image-version=composer-2.2.5-airflow-2.7.1
+Upload DAGs and SQL (automated via Cloud Build or manually):
 
-
-Copy DAGs and SQL to Composer bucket:
-
-From cloudbuild.yaml this is automated, or if you want manually:
-
-# DAG Python files
+bash
+Copy code
+# DAGs
 gsutil cp dags/*.py gs://<COMPOSER_BUCKET>/dags/
 
-# SQL folder
+# SQL
 gsutil -m cp -r sql gs://<COMPOSER_BUCKET>/dags/
-
-
-The DAG will appear in the Airflow UI, ready to schedule.
-
 5️⃣ Cloud Build Pipeline
-
 Trigger build from GitHub:
 
+bash
+Copy code
 gcloud builds submit --config cloudbuild.yaml .
+Cloud Build will:
 
+Build Docker image for pipelines
 
-What Cloud Build does:
+Push image to gcr.io/$PROJECT_ID/beam-pipelines:latest
 
-Builds Docker image for Dataflow pipelines
+Build Flex Templates (ingest-api1.py & ingest-api2.py)
 
-Pushes Docker image to gcr.io/$PROJECT_ID/beam-pipelines:latest
+Upload DAGs & SQL to Composer bucket
 
-Creates Flex Templates for ingest-api1.py and ingest-api2.py
+Variables:
 
-Uploads Airflow DAGs & SQL to Composer bucket
+$PROJECT_ID → GCP project ID
 
-Variables used in Cloud Build:
-
-$PROJECT_ID → auto-filled by Cloud Build
-
-_COMPOSER_BUCKET → specify your Composer bucket name in cloudbuild.yaml | or put in cloud build trigger "Substitution variables" (inside UI)
+_COMPOSER_BUCKET → Composer DAG bucket
 
 6️⃣ Running Dataflow Jobs
+Flex Templates in GCS:
 
-Dataflow Flex Templates are ready in GCS:
-
+bash
+Copy code
 gs://$PROJECT_ID-templates/ingest-api1.json
 gs://$PROJECT_ID-templates/ingest-api2.json
-
-
 Trigger manually:
 
+bash
+Copy code
 gcloud dataflow flex-template run "ingest-api1-$(date +%Y%m%d-%H%M%S)" \
     --template-file-gcs-location gs://$PROJECT_ID-templates/ingest-api1.json \
     --region us-central1
-
-
-Or let Airflow DAG handle scheduling.
+Or schedule via Airflow DAG.
 
 7️⃣ Airflow DAG Scheduling
-
 DAG: football_ingest
 
-Schedule: daily (@daily) by default.
+Schedule: daily (@daily)
 
-Tasks in DAG:
+Tasks:
 
 ingest_api1 → triggers first Dataflow job
 
 ingest_api2 → triggers second Dataflow job
 
-run_sql_models → executes BigQuery SQL to build silver/gold tables
-
-Trigger DAG manually from UI if needed.
+run_sql_models → executes BigQuery SQL (silver/gold)
 
 8️⃣ BigQuery Setup
-
-Tables created by pipeline:
+Tables:
 
 teams.teams → raw data
 
-Silver/Gold tables → processed via SQL models (sql/silver.sql, sql/gold.sql)
+Silver/Gold → processed via SQL models
 
-BigQuery will automatically create tables if they don’t exist using WRITE_APPEND and CREATE_IF_NEEDED in Dataflow.
+Tables are auto-created if not existing using WRITE_APPEND and CREATE_IF_NEEDED.
 
 9️⃣ Local Testing (Optional)
-
 Install dependencies:
 
+bash
+Copy code
 pip install -r requirements.txt
+Run pipelines locally:
 
-
-
-Test Dataflow pipelines locally:
-
+bash
+Copy code
 python src/Pipelines/ingest-api1.py
 python src/Pipelines/ingest-api2.py
+Uses .env for API keys.
 
+🔒 Secrets & Security
+Never commit .env to GitHub
 
-Local run uses .env for API keys and writes to your local temp path or bucket if configured.
+Use Secret Manager for production
 
-10️⃣ Secrets & Security
+Inject secrets into Cloud Build and Composer as environment variables
 
-Never commit .env to GitHub.
+🔑 Permissions
+Cloud Composer service account needs these roles:
 
-For production, use Secret Manager and inject into Cloud Build and Composer via environment variables.
+Dataflow Developer (roles/dataflow.developer) → create/run Dataflow jobs
 
-11️⃣ Summary Checklist
+Storage Object Admin (roles/storage.objectAdmin) → access GCS staging/templates
 
-✅ Repo cloned with required structure
+BigQuery Data Editor (roles/bigquery.dataEditor) → write tables
 
-✅ .env (for local) or Secret Manager (cloud)
+If you get:
 
-✅ Buckets created (templates, temp, staging, sport__bucket)
+lua
+Copy code
+HttpError 403: Could not create workflow; user does not have write access ...
+permission: 'dataflow.jobs.create'
+Grant Dataflow Developer role:
 
-✅ Composer environment created, DAGs & SQL uploaded
+bash
+Copy code
+gcloud projects add-iam-policy-binding [PROJECT_ID] \
+    --member="serviceAccount:[COMPOSER_SERVICE_ACCOUNT]" \
+    --role="roles/dataflow.developer"
+Replace [PROJECT_ID] and [COMPOSER_SERVICE_ACCOUNT].
 
-✅ Cloud Build triggered → Docker image + Flex Templates built
+✅ Summary Checklist
+ Repo cloned with correct structure
 
-✅ Airflow DAG schedules ingestion + BigQuery models
+ .env (local) or Secret Manager (cloud)
 
-✅ Local testing possible using .env
+ Buckets created (templates, temp, staging, sport__bucket)
+
+ Composer environment ready, DAGs & SQL uploaded
+
+ Cloud Build triggered → Docker image + Flex Templates built
+
+ Airflow DAG schedules ingestion + BigQuery models
+
+ Local testing possible
