@@ -101,6 +101,9 @@ echo your_key_2 > api_key_2.txt
 gcloud secrets create API_KEY_1 --data-file=api_key_1.txt
 gcloud secrets create API_KEY_2 --data-file=api_key_2.txt
 
+#check them using the CLI
+gcloud secrets list
+
 3️⃣ Buckets Setup
 bash
 Copy code
