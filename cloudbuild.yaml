@@ -42,7 +42,7 @@ steps:
         --staging-location=gs://$PROJECT_ID-templates/staging \
         --temp-location=gs://$PROJECT_ID-templates/temp
 
-
+ 
 # 5️⃣ Upload DAGs and SQL to Cloud Composer DAGs bucket
 - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk:latest'
   entrypoint: 'bash'
