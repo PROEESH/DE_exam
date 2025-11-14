@@ -3,6 +3,10 @@
 
 Lightweight Data engineering sample project — ingest football data from two external APIs, transform, persist as Parquet and load to BigQuery. Includes Beam pipelines, Airflow DAG, SQL models and deployment artifacts for local testing or running on GCP Dataflow.
 
+## Architecture Overview
+
+![Pipeline Architecture](docs/architecture.png)
+
 ## Contents
 - .env — environment variables (not committed)
 - Dockerfile, cloudbuild.yaml — container and Cloud Build config
@@ -192,6 +196,7 @@ BigQuery will automatically create tables if they don’t exist using WRITE_APPE
 Install dependencies:
 
 pip install -r requirements.txt
+
 
 
 Test Dataflow pipelines locally:
