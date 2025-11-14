@@ -23,8 +23,8 @@ COMPOSER_BUCKET = "us-central1-airflow-de-exam-1de749f2-bucket"  # replace with 
 PROJECT_ID = "voltaic-tooling-471807-t5"
 REGION = "us-central1"
 
-DATAFLOW_TEMPLATE_1 = f"gs://{PROJECT_ID}-templates/ingest_api1.json"
-DATAFLOW_TEMPLATE_2 = f"gs://{PROJECT_ID}-templates/ingest_api2.json"
+DATAFLOW_TEMPLATE_1 = f"gs://{PROJECT_ID}-templates/ingest-api1.json"
+DATAFLOW_TEMPLATE_2 = f"gs://{PROJECT_ID}-templates/ingest-api2.json"
 
 SILVER_SQL_PATH = "dags/sql/silver.sql"
 GOLD_SQL_PATH   = "dags/sql/gold.sql"
