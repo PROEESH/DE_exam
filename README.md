@@ -11,72 +11,57 @@ Lightweight Data Engineering sample project — ingest football data from two ex
 This diagram shows the flow of data from the APIs through Dataflow Flex Templates, stored in GCS, and then transformed into Silver and Gold tables in BigQuery. Airflow orchestrates scheduling.
 
 ---
+# Data Ingestion & Transformation Architecture
 
-Components
+This project implements a **data ingestion and transformation architecture** using Apache Beam, Google Cloud Platform (GCP) services, and Airflow for orchestration. It provides a fully managed, scalable, and reproducible pipeline for processing raw data into analytics-ready datasets.
 
-Apache Beam Pipelines
+---
 
-Transform and normalize raw data.
+## Components
 
-Store results as Parquet and write to BigQuery raw tables.
+### Apache Beam Pipelines
+- Transform and normalize raw data.
+- Store results as Parquet files on GCS and write to BigQuery raw tables.
+- Can run locally with **DirectRunner** or on GCP with **DataflowRunner**.
 
-Runs locally with DirectRunner or on GCP with DataflowRunner.
+### Parquet on GCS
+- Intermediate storage for normalized data.
+- Columnar format ensures efficient queries and storage.
 
-Parquet on GCS
+### BigQuery Raw Tables
+- Store raw ingestion data in a structured format.
+- Enables downstream SQL transformations.
 
-Intermediate storage for normalized data.
+### Airflow DAGs
+- Orchestrate pipelines and transformations.
+- Automates scheduling, dependencies, and retries.
 
-Columnar format for efficient queries and storage.
+### BigQuery SQL Models
+- Transform raw tables into **Silver** and **Gold** layers.
+  - **Silver layer**: Combined, normalized tables ready for analysis.
+  - **Gold layer**: Final analytics-ready dataset aggregating all sources.
 
-BigQuery Raw Tables
+### Dataflow Flex Templates
+- Pre-built pipeline definitions stored in GCS.
+- Allows pipelines to be triggered dynamically via Airflow or CLI.
+- Decouples pipeline code from orchestration.
 
-Store raw ingestion data in a structured format.
+### Docker + Cloud Build
+- Builds and packages pipelines into reproducible containers.
+- Automates pushing images to GCP Container Registry.
+- Generates Flex Templates and uploads DAGs & SQL to the Composer bucket.
 
-Enables downstream SQL transformations.
+---
 
-Airflow DAGs
+## Why This Architecture?
 
-Orchestrate pipelines and transformations.
+- Clear separation of **ingestion, storage, and transformation layers**.
+- Fully managed, scalable, and serverless where possible.
+- Supports **CI/CD** and reproducible builds.
+- Easy local testing and debugging.
+- Simplifies orchestration and scheduling via Airflow.
 
-Automates scheduling, dependencies, and retries.
-
-BigQuery SQL Models
-
-Transform raw tables into Silver and Gold layers.
-
-Silver layer: combined, normalized tables ready for analysis.
-
-Gold layer: final analytics-ready dataset aggregating all sources.
-
-Dataflow Flex Templates
-
-Pre-built pipeline definitions in GCS.
-
-Allows pipelines to be triggered dynamically via Airflow or CLI.
-
-Decouples pipeline code from orchestration.
-
-Docker + Cloud Build
-
-Builds and packages pipelines in reproducible containers.
-
-Automates pushing images to GCP Container Registry.
-
-Generates Flex Templates and uploads DAGs & SQL to Composer bucket.
-
-Why This Architecture?
-
-Clear separation of ingestion, storage, and transformation layers.
-
-Fully managed, scalable, and serverless where possible.
-
-Supports CI/CD and reproducible builds.
-
-Easy local testing and debugging.
-
-Simplifies orchestration and scheduling via Airflow.
-
-
+---
 
 
 ## Contents
