@@ -6,7 +6,10 @@ SELECT * FROM `voltaic-tooling-471807-t5.teams.teams_API2`
 -- SELECT * FROM `voltaic-tooling-471807-t5.dataset.teams_api2`;
 
 -- Silver layer: union standings from both APIs
-CREATE OR REPLACE TABLE `voltaic-tooling-471807-t5.teams.standings` AS
-SELECT * FROM `voltaic-tooling-471807-t5.teams.standings_API2`;
+
+
+--CREATE OR REPLACE TABLE `voltaic-tooling-471807-t5.teams.standings` AS
+--SELECT * FROM `voltaic-tooling-471807-t5.teams.standings_API2`;
+
 -- UNION ALL
 --SELECT * FROM `voltaic-tooling-471807-t5.dataset.standings_api2`;

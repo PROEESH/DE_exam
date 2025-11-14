@@ -29,6 +29,9 @@ DATAFLOW_TEMPLATE_2 = f"gs://{PROJECT_ID}-templates/ingest-api2.json"
 SILVER_SQL_PATH = "dags/sql/silver.sql"
 GOLD_SQL_PATH   = "dags/sql/gold.sql"
 
+from airflow.models import Variable
+API_KEY_2 = Variable.get("API_KEY_2")
+
 # ------------- DAG definition -------------
 with DAG(
     'dataflow_ingest_bq',
@@ -66,7 +69,7 @@ with DAG(
                     "tempLocation": f"gs://{PROJECT_ID}-templates/temp",
                     "zone": "us-central1-f"
                 },
-                "parameters": {}
+                "parameters": {"API_KEY_2": API_KEY_2}
             }
         },
         location=REGION,
