@@ -5,7 +5,15 @@
       "name": "API_KEY_2",
       "label": "API Key 2",
       "helpText": "Secret API key for the second pipeline",
-      "paramType": "TEXT"
+      "paramType": 
+      "TEXT"
+    },
+     {
+      "name": "FLEX_TEMPLATE_PYTHON_PY_FILE",
+      "label": "Pipeline Python file",
+      "helpText": "Path to the Python file inside container",
+      "paramType": "TEXT",
+      "defaultValue": "/template/src/Pipelines/ingest-api2.py"
     }
   ]
 }
