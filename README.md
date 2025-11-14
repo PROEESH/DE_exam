@@ -17,6 +17,8 @@ Lightweight Data Engineering sample project — ingest football data from two ex
   3. Better handle with the data - now its rewrite, handle the new data as temp and merge 
   the data
   4. Define the CICD according to the change in repo. not run all steps every push to main
+  5. Use uv instead of pip (simple for dev and harder to build image with)
+  6. Each error/warning - just put on the bucker logging (not implemented)
 ---
 
 ## Architecture Overview

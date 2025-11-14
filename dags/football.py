@@ -21,7 +21,8 @@ default_args = {
 # ------------- Variables -------------
 COMPOSER_BUCKET = "us-central1-airflow-de-exam-1de749f2-bucket"
 PROJECT_ID = "voltaic-tooling-471807-t5"
-REGION = "US"
+REGION_BQ = "US"
+REGION_DF = "us-central1"
 
 DATAFLOW_TEMPLATE_1 = f"gs://{PROJECT_ID}-templates/ingest-api1.json"
 DATAFLOW_TEMPLATE_2 = f"gs://{PROJECT_ID}-templates/ingest-api2.json"
@@ -72,7 +73,7 @@ with DAG(
                 "parameters": {"API_KEY_2": API_KEY_2}
             }
         },
-        location=REGION,
+        location=REGION_DF,
         project_id=PROJECT_ID
     )
 
@@ -86,7 +87,7 @@ with DAG(
                 #"writeDisposition": "WRITE_TRUNCATE",
             }
         },
-        location=REGION,
+        location=REGION_BQ,
         project_id=PROJECT_ID,
     )
 
@@ -100,7 +101,7 @@ with DAG(
                 "writeDisposition": "WRITE_TRUNCATE",
             }
         },
-        location=REGION,
+        location=REGION_BQ,
         project_id=PROJECT_ID,
     )
 
