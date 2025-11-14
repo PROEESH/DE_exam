@@ -41,6 +41,18 @@ bq_schema = {
     ]
 }
 
+
+standings_bq_schema = {
+    "fields": [
+        {"name": "league_id", "type": "STRING"},
+        {"name": "team_id", "type": "STRING"},
+        {"name": "team_name", "type": "STRING"},
+        {"name": "rank", "type": "INTEGER"},
+        {"name": "points", "type": "INTEGER"},
+        {"name": "goals_diff", "type": "INTEGER"}
+    ]
+}
+
 # Load API key
 load_dotenv()
 API_KEY_2 = os.getenv("API_KEY_2")
@@ -76,24 +88,55 @@ class FlattenTeamData(beam.DoFn):
             # "venue_surface": str(team.get("venue_surface", "")),
             #"players": json.dumps(players)  # store list as JSON string
         }
+
 class FetchLeagueStandings(beam.DoFn):
     def process(self, league_id):
         conn = http.client.HTTPSConnection("v3.football.api-sports.io")
         headers = {"x-apisports-key": API_KEY_1}
-        season = 2022
-        #page = 1
+
         conn.request(
             "GET",
-            f"/standings?league={league_id}&season={season}", #&page={page}
+            f"/standings?league={league_id}&season=2022",
             headers=headers
         )
+
         res = conn.getresponse()
         data = json.loads(res.read())
 
-        print(data)
+        yield data  # Pass raw object to flattening step
+
+
+class FlattenStandingsData(beam.DoFn):
+    def process(self, data):
+        try:
+            standings_list = data["response"][0]["league"]["standings"][0]
+        except Exception:
+            print("❌ INVALID STANDINGS FORMAT:", data)
+            return
+
+        for row in standings_list:
+            yield {
+                "league_id": "152",
+                "team_id": str(row["team"]["id"]),
+                "team_name": row["team"]["name"],
+                "rank": row["rank"],
+                "points": row["points"],
+                "goals_diff": row["goalsDiff"]
+            }
+
 
 
 def run():
+    # PROJECT_ID = os.getenv("PROJECT_ID")
+    # REGION     = os.getenv("REGION")
+    # BUCKET     = os.getenv("BUCKET")
+
+    # options = PipelineOptions(
+    #     runner="DataflowRunner",
+    #     project=PROJECT_ID,
+    #     region=REGION,
+    #     temp_location=f"gs://{BUCKET}/temp"
+    # )
     options = PipelineOptions(
         runner="DataflowRunner",  # Or "DataflowRunner" if running on GCP
         temp_location="gs://sport__bucket/temp",  # Required for Dataflow
@@ -122,13 +165,36 @@ def run():
 
         # Write to BigQuery
         teams | "Write to BigQuery" >> WriteToBigQuery(
-            table="voltaic-tooling-471807-t5.teams.teams",
+            table="voltaic-tooling-471807-t5.teams.teams_API2",
             project="voltaic-tooling-471807-t5",
             schema=bq_schema,
             write_disposition=beam.io.BigQueryDisposition.WRITE_APPEND,
             create_disposition=beam.io.BigQueryDisposition.CREATE_IF_NEEDED
         )
 
+        standings = (
+            p
+            | "Standings League ID" >> beam.Create([152])
+            | "Fetch Standings" >> beam.ParDo(FetchLeagueStandings())
+            | "Flatten Standings" >> beam.ParDo(FlattenStandingsData())
+            | "Filter Standings None" >> beam.Filter(lambda x: x is not None)
+        )
+
+
+        # Write to Parquet
+        standings | "Write to Parquet" >> beam.io.parquetio.WriteToParquet(
+            f"gs://sport__bucket/standings/API2/premier_league_{timestamp}",
+            schema=parquet_schema,
+            file_name_suffix=".parquet"
+        )
+
+        #write to BigQuery
+        standings | "Standings → BigQuery" >> WriteToBigQuery(
+            table="voltaic-tooling-471807-t5.teams.standings_API2",
+            schema=standings_bq_schema,
+            write_disposition="WRITE_APPEND",
+            create_disposition="CREATE_IF_NEEDED"
+        )
 
 
 if __name__ == "__main__":
