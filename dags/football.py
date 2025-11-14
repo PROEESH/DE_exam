@@ -82,8 +82,8 @@ with DAG(
         configuration={
             "query": {
                 "query": read_sql_from_gcs(COMPOSER_BUCKET, SILVER_SQL_PATH),
-                "useLegacySql": False,
-                "writeDisposition": "WRITE_TRUNCATE",
+                "useLegacySql": False #,
+                #"writeDisposition": "WRITE_TRUNCATE",
             }
         },
         location=REGION,

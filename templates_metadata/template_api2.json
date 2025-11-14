@@ -1,5 +1,24 @@
+// {
+//   "name": "ingest_api2",
+//   "description": "Dataflow Flex Template for API 2 ingestion",
+//   "parameters": []
+// }
+
+
 {
-  "name": "ingest_api2",
-  "description": "Dataflow Flex Template for API 2 ingestion",
-  "parameters": []
+  "name": "ingest-api2",
+  "parameters": [
+    {
+      "name": "FLEX_TEMPLATE_PYTHON_PY_FILE",
+      "label": "Pipeline Python file",
+      "helpText": "Path to the Python file to run inside the container",
+      "paramType": "TEXT"
+    },
+    {
+      "name": "API_KEY_2",
+      "label": "API Key 2",
+      "helpText": "Secret API key for the second pipeline",
+      "paramType": "TEXT"
+    }
+  ]
 }
