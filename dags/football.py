@@ -38,22 +38,22 @@ with DAG(
 ) as dag:
 
     # Step 1: Run ingest_api1 Flex Template
-    ingest_api1 = DataflowStartFlexTemplateOperator(
-        task_id='ingest_api1',
-        body={
-            "launchParameter": {
-                "jobName": "ingest-api1-{{ ds_nodash }}",
-                "containerSpecGcsPath": DATAFLOW_TEMPLATE_1,
-                "environment": {
-                    "tempLocation": f"gs://{PROJECT_ID}-templates/temp",
-                    "zone": "us-central1-f"
-                },
-                "parameters": {}
-            }
-        },
-        location=REGION,
-        project_id=PROJECT_ID
-    )
+    # ingest_api1 = DataflowStartFlexTemplateOperator(
+    #     task_id='ingest_api1',
+    #     body={
+    #         "launchParameter": {
+    #             "jobName": "ingest-api1-{{ ds_nodash }}",
+    #             "containerSpecGcsPath": DATAFLOW_TEMPLATE_1,
+    #             "environment": {
+    #                 "tempLocation": f"gs://{PROJECT_ID}-templates/temp",
+    #                 "zone": "us-central1-f"
+    #             },
+    #             "parameters": {}
+    #         }
+    #     },
+    #     location=REGION,
+    #     project_id=PROJECT_ID
+    # )
 
     # Step 2: Run ingest_api2 Flex Template
     ingest_api2 = DataflowStartFlexTemplateOperator(
