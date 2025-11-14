@@ -70,9 +70,11 @@ with DAG(
                     "tempLocation": f"gs://{PROJECT_ID}-templates/temp",
                     "zone": "us-central1-f"
                 },
-                "parameters": {"API_KEY_2": API_KEY_2}
-            }
-        },
+                "parameters": {
+                    "API_KEY_2": API_KEY_2,
+                    "FLEX_TEMPLATE_PYTHON_PY_FILE": "/template/src/Pipelines/ingest-api2.py"
+                }
+        }},
         location=REGION_DF,
         project_id=PROJECT_ID
     )
