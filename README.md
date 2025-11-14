@@ -12,6 +12,73 @@ This diagram shows the flow of data from the APIs through Dataflow Flex Template
 
 ---
 
+Components
+
+Apache Beam Pipelines
+
+Transform and normalize raw data.
+
+Store results as Parquet and write to BigQuery raw tables.
+
+Runs locally with DirectRunner or on GCP with DataflowRunner.
+
+Parquet on GCS
+
+Intermediate storage for normalized data.
+
+Columnar format for efficient queries and storage.
+
+BigQuery Raw Tables
+
+Store raw ingestion data in a structured format.
+
+Enables downstream SQL transformations.
+
+Airflow DAGs
+
+Orchestrate pipelines and transformations.
+
+Automates scheduling, dependencies, and retries.
+
+BigQuery SQL Models
+
+Transform raw tables into Silver and Gold layers.
+
+Silver layer: combined, normalized tables ready for analysis.
+
+Gold layer: final analytics-ready dataset aggregating all sources.
+
+Dataflow Flex Templates
+
+Pre-built pipeline definitions in GCS.
+
+Allows pipelines to be triggered dynamically via Airflow or CLI.
+
+Decouples pipeline code from orchestration.
+
+Docker + Cloud Build
+
+Builds and packages pipelines in reproducible containers.
+
+Automates pushing images to GCP Container Registry.
+
+Generates Flex Templates and uploads DAGs & SQL to Composer bucket.
+
+Why This Architecture?
+
+Clear separation of ingestion, storage, and transformation layers.
+
+Fully managed, scalable, and serverless where possible.
+
+Supports CI/CD and reproducible builds.
+
+Easy local testing and debugging.
+
+Simplifies orchestration and scheduling via Airflow.
+
+
+
+
 ## Contents
 
 - `.env` — environment variables (not committed)

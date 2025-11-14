@@ -7,8 +7,8 @@ steps:
   args: ['build', '-t', 'gcr.io/$PROJECT_ID/beam-pipelines:latest', '.']
 
 # 2️⃣ Push Docker image
-- name: 'gcr.io/cloud-builders/docker'
-  args: ['push', 'gcr.io/$PROJECT_ID/beam-pipelines:latest']
+#- name: 'gcr.io/cloud-builders/docker'
+#  args: ['push', 'gcr.io/$PROJECT_ID/beam-pipelines:latest']
 
 # 3️⃣ Build Flex Template for ingest_api1.py
 - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk:latest'
