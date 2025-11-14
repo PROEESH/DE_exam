@@ -103,4 +103,5 @@ with DAG(
 
     # ------------- DAG dependencies -------------
     #ingest_api1 >> 
-    ingest_api2 >> bq_silver >> bq_gold
+    ingest_api2  
+    bq_silver >> bq_gold
