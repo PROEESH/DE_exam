@@ -4,6 +4,19 @@ Lightweight Data Engineering sample project — ingest football data from two ex
 
 ---
 
+ - First API has blocked me - i tried to create more than 1 free user.. talked with Sharon about it
+ - Instructions how to run below - some actions happend in the UI - maybe i forgot some actions ;< 
+ - SQL DDL is in sql folder (simple according to above block)
+ - CSV is in docs/data.csv - took from the gold.sql
+ 
+
+ - Add airflow - more complex with permission, service account and manage the cicd
+ - What should i add with more time:
+  1. Full DDL with specific fields names 
+  2. Better queries - improve the selection columns from api (ingest all to object storage for backup)
+  3. Better handle with the data - now its rewrite, handle the new data as temp and merge the data
+---
+
 ## Architecture Overview
 
 ![Pipeline Architecture](docs/architecture.png)
@@ -305,3 +318,15 @@ Replace [PROJECT_ID] and [COMPOSER_SERVICE_ACCOUNT].
  Airflow DAG schedules ingestion + BigQuery models
 
  Local testing possible
+
+
+
+
+
+
+
+## command for gcloud cli to template ingest-api2 dataflow
+$TEMPLATE_BUCKET="gs://voltaic-tooling-471807-t5-templates"
+$PROJECT_ID="voltaic-tooling-471807-t5"
+
+gcloud dataflow flex-template build $TEMPLATE_BUCKET/ingest-api2.json --image-gcr-path=gcr.io/$PROJECT_ID/beam-pipelines:latest --sdk-language=PYTHON --metadata-file=templates_metadata/template_api2.json --py-path=src/Pipelines/ingest-api2.py --flex-template-base-image=PYTHON3 --env FLEX_TEMPLATE_PYTHON_PY_FILE=src/Pipelines/ingest-api2.py --staging-location=$TEMPLATE_BUCKET/staging --temp-location=$TEMPLATE_BUCKET/temp
