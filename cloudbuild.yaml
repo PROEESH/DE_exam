@@ -38,7 +38,6 @@ steps:
         --image-gcr-path=gcr.io/$PROJECT_ID/beam-pipelines:latest \
         --sdk-language=PYTHON \
         --metadata-file=templates_metadata/template_api2.json \
-        --py-path=src/Pipelines/ingest-api2.py \
         --flex-template-base-image=PYTHON3 \
         --staging-location=gs://$PROJECT_ID-templates/staging \
         --temp-location=gs://$PROJECT_ID-templates/temp
