@@ -32,6 +32,8 @@ steps:
   args:
     - '-c'
     - |
+      echo "Checking if pipeline file exists:"
+      ls -l src/Pipelines/
       gcloud dataflow flex-template build gs://$PROJECT_ID-templates/ingest-api2.json \
         --image-gcr-path=gcr.io/$PROJECT_ID/beam-pipelines:latest \
         --sdk-language=PYTHON \
