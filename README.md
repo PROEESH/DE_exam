@@ -20,6 +20,7 @@ Lightweight Data Engineering sample project — ingest football data from two ex
     5. Use uv instead of pip (simple for dev and harder to build image with)
     6. Better instructions
     7. Better using of git(using branchs, MR and commit's messages well)
+    8. Add smart partitions for the data on the Bucket
 ---
 
 ## Architecture Overview
@@ -336,9 +337,12 @@ $PROJECT_ID="voltaic-tooling-471807-t5"
 
 gcloud dataflow flex-template build $TEMPLATE_BUCKET/ingest-api2.json --image-gcr-path=gcr.io/$PROJECT_ID/beam-pipelines:latest --sdk-language=PYTHON --metadata-file=templates_metadata/template_api2.json --py-path=src/Pipelines/ingest-api2.py --flex-template-base-image=PYTHON3 --env FLEX_TEMPLATE_PYTHON_PY_FILE=src/Pipelines/ingest-api2.py --staging-location=$TEMPLATE_BUCKET/staging --temp-location=$TEMPLATE_BUCKET/temp
 
-#command for run dataflow flex-template - airflow not working - configuration error
+# command for run dataflow flex-template - airflow not working - configuration error
 # dont forget to gcloud auth login and put env of API_KEY_2 
 gcloud dataflow flex-template run "ingest-api2-$(date +%Y%m%d-%H%M%S)" \
   --template-file-gcs-location gs://voltaic-tooling-471807-t5-templates/ingest-api2.json \
   --parameters API_KEY_2="$API_KEY_2" \
   --region us-central1
+
+
+  # if not working yet like me - runit from local and change the runner to "DirectRunner"

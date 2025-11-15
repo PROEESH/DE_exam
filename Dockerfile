@@ -34,5 +34,5 @@ RUN pip install --no-cache-dir -r requirements.txt
 # Copy all your pipeline scripts
 COPY src/Pipelines/ /template/src/Pipelines/
 
-# Do NOT set ENTRYPOINT or FLEX_TEMPLATE_PYTHON_PY_FILE here
-# Each Flex Template build will specify the pipeline file dynamically
+# Set the entrypoint to your pipeline script
+ENTRYPOINT ["python", "/template/src/Pipelines/ingest-api2.py"]
