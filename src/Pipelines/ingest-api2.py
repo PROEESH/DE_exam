@@ -143,7 +143,8 @@ def run():
         runner="DataflowRunner",  # Or "DataflowRunner" if running on GCP
         temp_location="gs://sport__bucket/temp",  # Required for Dataflow
         project="voltaic-tooling-471807-t5",  # Your GCP project ID
-        region="us-central1"
+        region="us-central1",
+        save_main_session=True,   # very important
     )
     # Generate timestamp for filename
     timestamp = datetime.now().strftime("%Y%m%d-%H%M%S")

@@ -8,8 +8,7 @@ Lightweight Data Engineering sample project — ingest football data from two ex
  - Instructions how to run below - some actions happend in the UI - maybe i forgot some actions such as permissions, service account..  ;< 
  - SQL DDL is in sql folder (simple according to above block)
  - CSV is in docs/data.csv - took from the gold.sql
- 
-
+ - Used AI tools like ChatGPT
  - Add airflow - more complex with permission, service account and manage the cicd
  - What should i add with more time:
     1. Each error/warning on ingestion/transformation - put on the bucket as logging (not implemented)
@@ -345,4 +344,5 @@ gcloud dataflow flex-template run "ingest-api2-$(date +%Y%m%d-%H%M%S)" \
   --region us-central1
 
 
-  # if not working yet like me - runit from local and change the runner to "DirectRunner"
+  # if not working yet like me - run it from local and change the runner to "DataflowRunner" so the job working. and in the airflow Composer will run the bigquery jobs
+  python src/Pipelines/ingest-api2.py --runner DataflowRunner
