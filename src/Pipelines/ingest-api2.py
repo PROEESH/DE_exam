@@ -140,7 +140,7 @@ def run():
     #     temp_location=f"gs://{BUCKET}/temp"
     # )
     options = PipelineOptions(
-        runner="DirectRunner",  # Or "DataflowRunner" if running on GCP
+        runner="DataflowRunner",  # Or "DataflowRunner" if running on GCP
         temp_location="gs://sport__bucket/temp",  # Required for Dataflow
         project="voltaic-tooling-471807-t5",  # Your GCP project ID
         region="us-central1"

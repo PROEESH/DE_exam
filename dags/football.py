@@ -3,6 +3,8 @@ from airflow.utils.dates import days_ago
 from airflow.providers.google.cloud.operators.dataflow import DataflowStartFlexTemplateOperator
 from airflow.providers.google.cloud.operators.bigquery import BigQueryInsertJobOperator
 from google.cloud import storage
+from airflow.utils.trigger_rule import TriggerRule
+
 
 # ------------- Helper function to read SQL from GCS -------------
 def read_sql_from_gcs(bucket_name, file_path):
@@ -107,6 +109,7 @@ with DAG(
         },
         location=REGION_BQ,
         project_id=PROJECT_ID,
+        trigger_rule=TriggerRule.ONE_SUCCESS
     )
 
     # Step 4: Run BigQuery Teams Standings SQL
@@ -119,6 +122,7 @@ with DAG(
                 #"writeDisposition": "WRITE_TRUNCATE",
             }
         },
+        trigger_rule=TriggerRule.ONE_SUCCESS
         location=REGION_BQ,
         project_id=PROJECT_ID,
     )
