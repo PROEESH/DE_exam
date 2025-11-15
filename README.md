@@ -19,7 +19,7 @@ Lightweight Data Engineering sample project — ingest football data from two ex
     4. Define the CICD according to the change in repo. not run all steps every push to main
     5. Use uv instead of pip (simple for dev and harder to build image with)
     6. Better instructions
-    7. Better using of git( using branchs and MR well)
+    7. Better using of git(using branchs, MR and commit's messages well)
 ---
 
 ## Architecture Overview
