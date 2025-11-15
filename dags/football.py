@@ -27,8 +27,10 @@ REGION_DF = "us-central1"
 DATAFLOW_TEMPLATE_1 = f"gs://{PROJECT_ID}-templates/ingest-api1.json"
 DATAFLOW_TEMPLATE_2 = f"gs://{PROJECT_ID}-templates/ingest-api2.json"
 
-SILVER_SQL_PATH = "dags/sql/silver.sql"
-GOLD_SQL_PATH   = "dags/sql/gold.sql"
+TEAMS_SQL_PATH = "dags/sql/teams.sql"
+STANDINGS_SQL_PATH = "dags/sql/standings.sql"
+TEAMS_STAND_SQL_PATH = "dags/sql/teams_standings.sql"
+
 
 from airflow.models import Variable
 API_KEY_2 = Variable.get("API_KEY_2")
@@ -79,12 +81,12 @@ with DAG(
         project_id=PROJECT_ID
     )
 
-    # Step 3: Run BigQuery Silver SQL
-    bq_silver = BigQueryInsertJobOperator(
-        task_id='bq_silver',
+    # Step 3: Run BigQuery Teams SQL
+    bq_teams = BigQueryInsertJobOperator(
+        task_id='bq_teams',
         configuration={
             "query": {
-                "query": read_sql_from_gcs(COMPOSER_BUCKET, SILVER_SQL_PATH),
+                "query": read_sql_from_gcs(COMPOSER_BUCKET, TEAMS_SQL_PATH),
                 "useLegacySql": False #,
                 #"writeDisposition": "WRITE_TRUNCATE",
             }
@@ -93,14 +95,28 @@ with DAG(
         project_id=PROJECT_ID,
     )
 
-    # Step 4: Run BigQuery Gold SQL
-    bq_gold = BigQueryInsertJobOperator(
-        task_id='bq_gold',
+    # Step 4: Run BigQuery Standings SQL
+    bq_standings = BigQueryInsertJobOperator(
+        task_id='bq_standings',
         configuration={
             "query": {
-                "query": read_sql_from_gcs(COMPOSER_BUCKET, GOLD_SQL_PATH),
+                "query": read_sql_from_gcs(COMPOSER_BUCKET, STANDINGS_SQL_PATH),
                 "useLegacySql": False,
-                "writeDisposition": "WRITE_TRUNCATE",
+                #"writeDisposition": "WRITE_TRUNCATE",
+            }
+        },
+        location=REGION_BQ,
+        project_id=PROJECT_ID,
+    )
+
+    # Step 4: Run BigQuery Teams Standings SQL
+    bq_teams_standings = BigQueryInsertJobOperator(
+        task_id='bq_teams_standings',
+        configuration={
+            "query": {
+                "query": read_sql_from_gcs(COMPOSER_BUCKET, TEAMS_STAND_SQL_PATH),
+                "useLegacySql": False,
+                #"writeDisposition": "WRITE_TRUNCATE",
             }
         },
         location=REGION_BQ,
@@ -109,4 +125,4 @@ with DAG(
 
     # ------------- DAG dependencies -------------
     #ingest_api1 >> 
-    [ingest_api2, bq_silver] >> bq_gold
+    [ingest_api2, bq_teams] >> bq_standings >> bq_teams_standings

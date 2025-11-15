@@ -12,7 +12,7 @@ from apache_beam.io.gcp.bigquery import WriteToBigQuery
 
 
 parquet_schema = pa.schema([
-    ("team_key", pa.string()),
+    ("team_id", pa.string()),
     ("team_name", pa.string()),
     ("team_country", pa.string()),
     ("team_founded", pa.string())
@@ -27,7 +27,7 @@ parquet_schema = pa.schema([
 
 bq_schema = {
     "fields": [
-        {"name": "team_key", "type": "STRING", "mode": "NULLABLE"},
+        {"name": "team_id", "type": "STRING", "mode": "NULLABLE"},
         {"name": "team_name", "type": "STRING", "mode": "NULLABLE"},
         {"name": "team_country", "type": "STRING", "mode": "NULLABLE"},
         {"name": "team_founded", "type": "STRING", "mode": "NULLABLE"},
@@ -81,7 +81,7 @@ class FlattenTeamData(beam.DoFn):
         if not isinstance(team, dict):
             return  # skip invalid rows
         yield {
-            "team_key": str(team.get("team_key", "")),
+            "team_id": str(team.get("team_key", "")),
             "team_name": str(team.get("team_name", "")),
             "team_country": str(team.get("team_country", "")),
             "team_founded": str(team.get("team_founded", ""))

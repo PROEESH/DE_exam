@@ -12,13 +12,14 @@ Lightweight Data Engineering sample project — ingest football data from two ex
 
  - Add airflow - more complex with permission, service account and manage the cicd
  - What should i add with more time:
-    1. Full DDL with specific fields names 
+    1. Each error/warning on ingestion/transformation - put on the bucket as logging (not implemented)
     2. Better queries - improve the selection columns from api (ingest all to object storage for backup)
     3. Better handle with the data - now its rewrite, handle the new data as temp and merge 
     the data
     4. Define the CICD according to the change in repo. not run all steps every push to main
     5. Use uv instead of pip (simple for dev and harder to build image with)
-    6. Each error/warning - just put on the bucket as logging (not implemented)
+    6. Better instructions
+    7. Better using of git( using branchs and MR well)
 ---
 
 ## Architecture Overview
