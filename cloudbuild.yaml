@@ -40,6 +40,8 @@ steps:
         --metadata-file=templates_metadata/template_api2.json \
         --flex-template-base-image=PYTHON3 \
         --staging-location=gs://$PROJECT_ID-templates/staging \
+        --py-path=src/Pipelines/ingest-api2.py \
+        --env FLEX_TEMPLATE_PYTHON_PY_FILE=/template/src/Pipelines/ingest-api2.py \
         --temp-location=gs://$PROJECT_ID-templates/temp
 
  
