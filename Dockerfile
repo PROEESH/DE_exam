@@ -34,5 +34,3 @@ RUN pip install --no-cache-dir -r requirements.txt
 # Copy all your pipeline scripts
 COPY src/Pipelines/ /template/src/Pipelines/
 
-# Set the entrypoint to your pipeline script
-ENTRYPOINT ["python", "/template/src/Pipelines/ingest-api2.py"]
